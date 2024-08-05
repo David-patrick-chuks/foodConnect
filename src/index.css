@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.pop {
+  font-family: "Poppins", sans-serif;
+}
+
+.tit {
+  font-family: "Titillium Web", sans-serif;
+}
+input{
+  border: solid 2px black;
+}
+.nav .active {
+  font-weight: bold;
+  background-color: white;
+  color: #05380a;
+  /* background: linear-gradient(to bottom left, #074202, #176209);  */
+  border-top-right-radius: 0.7rem;
+  border-bottom-right-radius: 0.7rem;
+  /* padding: 0.5rem 1.25rem; */
+} 
+.image-gallery-thumbnail.active,
+.image-gallery-thumbnail:hover {
+  border: 2px solid black; /* Remove the border */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);/* Remove the box shadow */
+}
+
+/* Optional: Add a custom border or box shadow if needed */
+.image-gallery-thumbnail.active img,
+.image-gallery-thumbnail:hover img {
+  border: 2px solid transparent; 
+}
+.image-gallery {
+  width: 100%;
+  background-color: #dedede;
+}
+.custom-arrow{
+  width: 1.5rem;
+  height: 100%;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+.left-arrow{
+  width: 1.5rem;
+  height: 100%;
+  position: absolute;
+  top: 50%;
+  right: 3%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.image-gallery-index{
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  background-color: rgb(147, 147, 147);
+  position: absolute;
+  top: 0px;
+  border-radius: 100%;
+  opacity: 0.5;
+  right: 0px;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+::-webkit-scrollbar-track {
+  background: white;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 100px;
+  background: #05380a;
+  transition: background 2s; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #114e04;
+}
+
+
+/* Customize the progress bar color */
+#nprogress .bar {
+  background: red !important;
+}
+
+/* Optional: Customize the spinner if you use it */
+#nprogress .spinner-icon {
+  border-top-color: rgb(128, 0, 0) !important;
+  border-left-color: rgb(255, 0, 0) !important;
+}
