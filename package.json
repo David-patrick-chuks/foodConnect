@@ -17,7 +17,7 @@
     "@types/react-breadcrumbs-dynamic": "^1.0.7",
     "axios": "^1.7.2",
     "chatbot-widget-ui": "^1.2.1",
-    "date-fns": "^3.6.0",
+    "date-fns": "^2.30.0",
     "emoji-mart": "^5.6.0",
     "firebase": "^10.12.5",
     "formik": "^2.4.6",

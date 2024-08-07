@@ -53,8 +53,8 @@ function Signup() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full h-screen  ">
-      <div className="  w-[99.5%] sticky top-0 z-50 rounded-b-md  bg-gradient-to-tr from-green-700 to-green-900 shadow-md text-white px-3 items-center justify-between flex flex-row-reverse py-3 lg:py-2 cursor-pointer ">
+    <div className="flex flex-col items-center w-full h-screen relative  ">
+      <div className="  w-full absolute top-0 z-50 rounded-b-lg  bg-gradient-to-tr from-green-700 to-green-900 shadow-md text-white px-3 items-center justify-between flex flex-row-reverse py-3 lg:py-2 cursor-pointer ">
         <h1 onClick={handleBackHome} className="lg:text-2xl text-base font-semibold flex pop items-center">
           <img src="images/FoodBank.png" className=" w-5 lg:w-8 " />
           FoodConnect

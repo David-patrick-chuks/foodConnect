@@ -22,6 +22,7 @@ import Profile from "./pages/account/Profile";
 import { auth } from "./utils/firebase";
 import FoodConnectSignUp from "./pages/account/FoodConnectSignUp";
 import UserType from "./components/UserType";
+import Receiver from "./pages/dashboard/receiver/Receiver";
 /// Import custom styles for nprogress
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
         <Route path="/contact-us" element={<Contact />} />
         <Route path="/:id" element={<FooterContent />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/home" element={<Receiver />} />
         <Route
           path="/login"
           // element={user ? <Navigate to="/profile" /> : <Login />}

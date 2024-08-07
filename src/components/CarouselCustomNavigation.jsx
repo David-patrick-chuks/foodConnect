@@ -65,6 +65,7 @@ export function CarouselCustomNavigation({ scrollToClaim }) {
           >
             <FaChevronLeft />
           </IconButton>
+          
         )}
         nextArrow={({ handleNext }) => (
           <IconButton
