@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 export function CarouselCustomNavigation({ scrollToClaim }) {
   const HeroData = [
     {
-      imageUrl: "images/car1.jpeg",
+      imageUrl: "images/carr2.jpg",
       Headline: "Share Fresh Food, Spread Joy",
       Description:
         "Post your surplus fresh produce and help others access nutritious food items.",
@@ -22,7 +22,7 @@ export function CarouselCustomNavigation({ scrollToClaim }) {
       href: "/signup",
     },
     {
-      imageUrl: "images/car2.jpeg",
+      imageUrl: "images/carr11.jpg",
       Headline: "Connect with Fresh Supplies",
       Description:
         "Find fresh, uncooked  food items from generous donors in your community.",
@@ -31,7 +31,7 @@ export function CarouselCustomNavigation({ scrollToClaim }) {
       href: "#",
     },
     {
-      imageUrl: "images/car3.jpeg",
+      imageUrl: "images/carr4.jpg",
       Headline: "Reduce Waste, Feed the Community",
       Description:
         "Join us in minimizing food waste by donating or claiming fresh food items.",
@@ -40,7 +40,7 @@ export function CarouselCustomNavigation({ scrollToClaim }) {
       href: "/signup",
     },
     {
-      imageUrl: "images/car2.jpeg",
+      imageUrl: "images/carr5.jpg",
       Headline: "Connect Through Food",
       Description:
         "Join a network that bridges the gap between donors and those in need of fresh food.",
@@ -65,7 +65,6 @@ export function CarouselCustomNavigation({ scrollToClaim }) {
           >
             <FaChevronLeft />
           </IconButton>
-          
         )}
         nextArrow={({ handleNext }) => (
           <IconButton
@@ -95,27 +94,29 @@ export function CarouselCustomNavigation({ scrollToClaim }) {
         {HeroData.map((data, id) => (
           <div
             key={id}
-            className="lg:h-[446px] h-[280px] relative w-full bg-[#07270e]"
+            className="lg:h-[446px] h-[280px] relative w-full bg-[#ffbb00]"
           >
             <img
               src={data.imageUrl}
               alt={data.imageUrl}
-              className=" w-full object-cover h-[100%] opacity-65"
+              className=" w-full object-cover h-[100%] "
             />
             <div className="lg:w-[50%] pl-1 w-[60%] flex flex-col gap-2 absolute top-1/2 left-1/2 -translate-y-1/2  text-white -translate-x-[80%] pop ">
-              <h1 className="lg:text-4xl text-md font-bold w-[80%]">{data.Headline}</h1>
+              <h1 className="lg:text-4xl text-md font-bold w-[80%]">
+                {data.Headline}
+              </h1>
               <p className="w-[80%] text-xs lg:text-sm">{data.Description}</p>
               <Link to={data.href}>
                 {data.Button && "Claim Food" ? (
                   <Button
-                    className="flex gap-1 items-center lg:py-2 py-1 bg-white text-dark rounded lg:rounded-md text-[8px] px-2 lg:px-3 lg:text-sm font-semibold"
+                    className="flex gap-1 items-center lg:py-2 py-1 bg-white text-[#ffbb00] rounded lg:rounded-md text-[8px] px-2 lg:px-3 lg:text-sm font-semibold"
                     onClick={scrollToClaim}
                   >
                     {data.Button}
                     {data.icon}
                   </Button>
                 ) : (
-                  <Button className="flex gap-1 items-center py-1 bg-white text-dark rounded lg:rounded-md lg:py-2 text-[8px] px-2 lg:px-3 lg:text-sm font-semibold">
+                  <Button className="flex gap-1 items-center py-1 bg-white text-[#ffbb00] rounded lg:rounded-md lg:py-2 text-[8px] px-2 lg:px-3 lg:text-sm font-semibold">
                     {data.Button}
                     {data.icon}
                   </Button>

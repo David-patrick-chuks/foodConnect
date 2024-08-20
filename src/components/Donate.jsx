@@ -38,7 +38,7 @@ export function Donate() {
               className="absolute inset-0 m-0 w-full rounded-none bg-cover bg-center h-full bg-no-repeat"
               style={{ backgroundImage: `url(${item.image})` }}
             >
-              <div className=" to-black/5 inset-0 h-full w-full bg-gradient-to-t from-black/90  via-black/50 absolute "></div>
+              <div className="  inset-0 h-full w-full bg-gradient-to-t from-black/90 to-black/5 via-black/50 absolute "></div>
             </CardHeader>
             <CardBody className="relative py-14 px-3 md:px-12">
               <Typography color="white" variant="h2" className=" mb-5 pop font-medium  text-4xl leading-[1.3] text-center">

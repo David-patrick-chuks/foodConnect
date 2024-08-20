@@ -1,5 +1,5 @@
 export default function Receiver() {
   return (
-    <div>Receiver</div>
+    <div>Receivevdr</div>
   )
 }

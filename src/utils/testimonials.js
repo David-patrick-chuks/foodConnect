@@ -1,14 +1,14 @@
 export const testimonials = [
     {
       id: 1,
-      name: "Jane Doe",
+      name: "Adekunle Ope",
       role: "Receiver",
       image: "images/jane_doe.jpg",
       quote: "Thanks to FoodConnect, I was able to access fresh produce when I needed it the most.",
     },
     {
       id: 2,
-      name: "John Smith",
+      name: "David Okafor",
       role: "Donor",
       image: "images/john_smith.jpg",
       quote: "FoodConnect makes it easy to share excess food with those in need, reducing waste and helping the community.",
@@ -22,28 +22,28 @@ export const testimonials = [
     },
     {
       id: 4,
-      name: "Michael Lee",
+      name: "Opeyemi Muina",
       role: "Donor",
       image: "images/michael_lee.jpg",
       quote: "I love how simple it is to donate food items through FoodConnect. It's a great way to give back.",
     },
     {
       id: 5,
-      name: "Sarah Brown",
+      name: "Sarah Bambe",
       role: "Receiver",
       image: "images/sarah_brown.jpg",
       quote: "FoodConnect helped me find fresh ingredients that I couldn't afford otherwise. It's a wonderful initiative.",
     },
     {
       id: 6,
-      name: "David Wilson",
+      name: "David Odogwu",
       role: "Donor",
       image: "images/david_wilson.jpg",
       quote: "I've been able to help my community by donating food that would have gone to waste. FoodConnect makes it easy.",
     },
     {
       id: 7,
-      name: "Emily Davis",
+      name: "Peter Wale",
       role: "Receiver",
       image: "images/emily_davis.jpg",
       quote: "As a student, it's been hard to afford fresh groceries. FoodConnect has been a blessing for me.",
@@ -57,7 +57,7 @@ export const testimonials = [
     },
     {
       id: 9,
-      name: "Jessica Taylor",
+      name: "Jessica Okoye",
       role: "Receiver",
       image: "images/jessica_taylor.jpg",
       quote: "The variety of fresh food available on FoodConnect has been amazing. It's really made a difference for my family.",

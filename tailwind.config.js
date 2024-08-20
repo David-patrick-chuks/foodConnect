@@ -8,10 +8,12 @@ module.exports = withMT({
   theme: {
     extend: {
       textColor:{
-        "dark": "#05380a"
+        "dark": "black",
+        "real" : "#ffbb00"
       },
       backgroundColor:{
-        "dark" : "#05380a"
+        "dark" : "#F8B602",
+        "real" : "#ffbb00"
       }
     },
   },
@@ -19,7 +21,7 @@ module.exports = withMT({
 });
 
 
-
+// #F8B602"
 
 
 

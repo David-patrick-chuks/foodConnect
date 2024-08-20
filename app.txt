@@ -1,0 +1,125 @@
+import React, { useEffect, useState } from "react";
+import {
+  BrowserRouter,
+  Route,
+  useNavigate,
+  Routes,
+  useLocation,
+} from "react-router-dom";
+import { Home } from "./pages/homepage/Home";
+import { NavBar } from "./components/NavBar";
+import { Footer } from "./components/Footer";
+import { NotFound } from "./components/NotFound";
+import { FooterContent } from "./components/FooterContent";
+import About from "./pages/about/About";
+import Works from "./pages/works/Works";
+import Contact from "./pages/contact/Contact";
+import Signup from "./pages/account/Signup";
+import Login from "./pages/account/Login";
+import Dashboard from "./pages/dashboard/Dashboard";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "./utils/firebase";
+import Donor from "./pages/donor/Donor";
+import ManagePosts from "./pages/donor/ManagePosts";
+import MessageD from "./pages/donor/MessageD";
+import NotifyD from "./pages/donor/NotifyD";
+import PostItem from "./pages/donor/PostItem";
+import Profile from "./pages/donor/Profile";
+import Receiver from "./pages/receiver/Receiver";
+import ClaimFood from "./pages/receiver/ClaimFood";
+import MyClaims from "./pages/receiver/MyClaims";
+import ProfileR from "./pages/receiver/ProfileR";
+import NotifyR from "./pages/receiver/NotifyR";
+import MessageR from "./pages/receiver/MessageR";
+import { doc, getDoc } from "firebase/firestore";
+import DonorProfile from "./pages/receiver/DonorProfile";
+import Preloader from "./components/Preloader";
+
+function App() {
+  const location = useLocation();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [userType, setUserType] = useState("");
+  const noNavBarFooterPath = ["/signup", "/login"];
+  const navigate = useNavigate();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        console.log("user is now true");
+        setLoading(false)
+        try {
+          const userDoc = doc(db, "FoodConnectUsers", currentUser.uid);
+          const docSnap = await getDoc(userDoc);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setUserType(data.userType);
+          }
+        } catch (error) {
+          console.log(
+            "error while getting user data: app routing",
+            error.message
+          );
+        }
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+// if(loading){
+//   return <Preloader />;
+// }
+  return (
+    <>
+      {/* !noNavBarFooterPath.some((path) => location.pathname.startsWith(path)) && */}
+      {!user && <NavBar />}
+      <Routes>
+        
+          <Route path="/" element={<Home />} />
+          <Route path="/about-us" element={<About />} />
+          <Route path="/how-it-works" element={<Works />} />
+          <Route path="/contact-us" element={<Contact />} />
+          <Route path="/:id" element={<FooterContent />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signin" element={<Login />} />
+         {/* {!loading && ( <Route path="*" element={<NotFound />} />)} */}
+        
+        {user && (
+          <Route path="/dashboard" element={<Dashboard />}>
+            {userType === "donor" && (
+              <>
+                <Route path="donor" element={<Donor />} />
+                <Route path="donor-profile" element={<Profile />} />
+                <Route path="manage-posts" element={<ManagePosts />} />
+                <Route path="donor-messages" element={<MessageD />} />
+                <Route path="donor-notifications" element={<NotifyD />} />
+                <Route path="post-item" element={<PostItem />} />
+              </>
+            )}
+            {userType === "receiver" && (
+              <>
+                <Route path="receiver" element={<Receiver />} />
+                <Route path="claim-food" element={<ClaimFood />} />
+                <Route path="claim-food/:donorId" element={<DonorProfile />} />
+                <Route path="my-claims" element={<MyClaims />} />
+                <Route path="receiver-profile" element={<ProfileR />} />
+                <Route path="receiver-messages" element={<MessageR />} />
+                <Route path="receiver-notifications" element={<NotifyR />} />
+              </>
+            )}
+          </Route>
+        )}
+      </Routes>
+      {!user && <Footer />}
+    </>
+  );
+}
+
+const AppWrapper = () => (
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);
+
+export default AppWrapper;

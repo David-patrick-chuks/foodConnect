@@ -1,27 +1,38 @@
-import React from "react";
-import { Typography, Button } from "@material-tailwind/react";
+import React, { useEffect, useState } from "react";
 import { FaFlag } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import Preloader from "./Preloader";
 export const NotFound = () => {
+  const [loading, setloading] = useState(true);
+  useEffect(() => {
+    setTimeout(() => {
+      setloading(false);
+    }, 5500);
+  }, []);
   return (
-      <div className="h-screen mx-auto grid place-items-center text-center px-8">
-        <div>
-          <FaFlag className="w-20 h-20 mx-auto" />
-          <Typography
-            variant="h1"
-            color="blue-gray"
-            className="mt-10 !text-3xl !leading-snug md:!text-4xl"
+    <>
+      <div className="h-screen pop flex-col text-white p-8 flex justify-center items-center bg-black">
+        <div className="text-center mb-6">
+          <h1 className="text-9xl text-amber-500 font-extrabold mb-4">404</h1>
+          <p className="text-3xl font-semibold mb-4">Page Not Found</p>
+          <p className="text-lg mb-6">
+            {" "}
+            Oops! This page is missing, like a meal without seasoning.
+          </p>
+        </div>
+        <div className="text-center">
+          <Link
+            to="/"
+            className="bg-amber-500 text-black py-2 px-6 rounded-full text-lg font-semibold hover:bg-amber-400 transition duration-300"
           >
-            Error 404 <br /> It looks like something went wrong.
-          </Typography>
-          <Typography className="mt-8 mb-14 text-[18px] font-normal text-gray-500 mx-auto md:max-w-sm">
-            Don&apos;t worry, our team is already on it.Please try refreshing
-            the page or come back later.
-          </Typography>
-          <Button color="gray" className="w-full px-4 md:w-[8rem]">
-            back home
-          </Button>
+            Return to Homepage
+          </Link>
+          {/* <p className="mt-4 text-gray-400">
+          {" "}
+          Thanks for being part of FoodConnect-where every connection is a treat
+        </p>{" "} */}
         </div>
       </div>
+    </>
   );
-}
-
+};
