@@ -85,10 +85,10 @@ function App() {
 
   return (
     <>
-      {!user ? (
+      {user ? (
         <>
           <NavBar />
-           <Bot /> 
+          {/* <Bot />  */}
           <div>{loading && <Preloader />}</div>
           <Routes>
             <Route path="/" element={<Home />} />
