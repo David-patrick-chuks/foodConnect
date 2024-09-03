@@ -9,6 +9,7 @@ import {
   updateDoc,
   deleteDoc,
   addDoc,
+  setDoc,
 } from "firebase/firestore";
 import { auth, db } from "../../utils/firebase";
 import { FaTrashAlt } from "react-icons/fa"; // Import the trash icon
@@ -58,6 +59,8 @@ const NotifyD = () => {
 
         setNotifications(notificationsList);
         setFilteredNotifications(notificationsList);
+
+        ///update receiver claims
       } catch (error) {
         console.error("Error fetching notifications:", error);
         setError("Failed to fetch notifications.");
@@ -165,10 +168,14 @@ const NotifyD = () => {
       const message = `${donorName} ${
         status === "accepted" ? "accepted" : "rejected"
       } your claim.`;
-
-      await addDoc(collection(db, "ReceiverNotify"), {
+      const docRef = doc(
+        db,
+        "ReceiverNotify", // Collection
+        receiverId // Document ID using receiverId
+      );
+      await setDoc(docRef, {
         receiverId,
-        donorId, // Add the donorId here
+        donorId,
         message,
         status,
         viewed: false,
@@ -184,27 +191,45 @@ const NotifyD = () => {
 
   const handleAccept = async (notification) => {
     const user = auth.currentUser;
-    if (user && receiverProfile) {
-      await updateNotificationStatus(notification.id, "accepted");
-      await createReceiverNotification(
+    try {
+      if (user && receiverProfile) {
+        await updateNotificationStatus(notification.id, "accepted");
+        await createReceiverNotification(
+          notification.claimedBy,
+          receiverProfile.fullName,
+          "accepted",
+          notification.donorId
+        );
+        await createChat(
+          notification.postImages,
+          notification.claimedBy,
+          notification.receiverAvatarURL,
+          notification.donorAvatarURL,
+          notification.donorId,
+          notification.donorFullName,
+          notification.receiverFullName
+        );
+        handleModalClose();
+      }
+      const myClaimsDocRef = doc(
+        db,
+        "FoodConnectUsers",
         notification.claimedBy,
-        receiverProfile.fullName,
-        "accepted",
-        notification.donorId
+        "MyClaims",
+        notification.postId
       );
-      await createChat(
-        notification.claimedBy,
-        notification.receiverAvatarURL,
-        notification.donorAvatarURL,
-        notification.donorId,
-        notification.donorFullName,
-        notification.receiverFullName
-      );
-      handleModalClose();
+
+      await updateDoc(myClaimsDocRef, {
+        status: "success",
+        viewd: "true",
+      });
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
   const createChat = async (
+    postImages,
     receiverId,
     receiverAvatarURL,
     donorAvatarURL,
@@ -214,6 +239,7 @@ const NotifyD = () => {
   ) => {
     try {
       await addDoc(collection(db, "Chats"), {
+        postImages,
         receiverId,
         receiverAvatarURL,
         donorAvatarURL,
@@ -231,15 +257,30 @@ const NotifyD = () => {
 
   const handleReject = async (notification) => {
     const user = auth.currentUser;
-    if (user && receiverProfile) {
-      await updateNotificationStatus(notification.id, "rejected");
-      await createReceiverNotification(
+    try {
+      if (user && receiverProfile) {
+        await updateNotificationStatus(notification.id, "rejected");
+        await createReceiverNotification(
+          notification.claimedBy,
+          receiverProfile.fullName,
+          "rejected",
+          notification.donorId
+        );
+        handleModalClose();
+      }
+      const myClaimsDocRef = doc(
+        db,
+        "FoodConnectUsers",
         notification.claimedBy,
-        receiverProfile.fullName,
-        "rejected",
-        notification.donorId
+        "MyClaims",
+        notification.postId
       );
-      handleModalClose();
+
+      await updateDoc(myClaimsDocRef, {
+        status: "rejected",
+      });
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
@@ -270,10 +311,15 @@ const NotifyD = () => {
               <div>
                 <p className="text-gray-800">{notification.message}</p>
                 <p className="text-sm text-gray-500">
-                  {new Date(
-                    notification.timestamp.seconds * 1000
-                  ).toLocaleString()}
+                  {notification.timestamp.toLocaleString("en-US", {
+                    hour: "numeric",
+                    minute: "numeric",
+                    hour12: true,
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </p>
+                <img src={notification.postImages[0]} className="w-10 h-10 object-cover" />
                 {notification.status && (
                   <p
                     className={`text-sm font-bold mt-2 ${

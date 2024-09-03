@@ -13,6 +13,7 @@ import {
 import { auth, db } from "../../utils/firebase";
 import { Input } from "@material-tailwind/react";
 import { IoArrowBack, IoMenu, IoSend } from "react-icons/io5";
+import Preloader from "../../components/Preloader";
 
 const ChatD = () => {
   const { ChatId } = useParams();
@@ -23,7 +24,9 @@ const ChatD = () => {
   const [avatarUrlR, setAvatarUrlR] = useState("/images/Avatar.png");
   const [fullName, setFullName] = useState("");
   const [fullNameR, setFullNameR] = useState("");
+  const [data, setData] = useState([]);
   // const [senderId, setSenderId] = useState("");
+  const [loading, setloading] = useState(true);
 
   useEffect(() => {
     const fetchUserDataa = async () => {
@@ -33,7 +36,8 @@ const ChatD = () => {
         const docSnap = await getDoc(userDoc);
         if (docSnap.exists()) {
           const data = docSnap.data();
-          console.log(data);
+          console.log(data || {});
+          setData(data.postImages);
           setFullNameR(data.receiverName);
           setAvatarUrlR(data.receiverAvatarURL);
         } else {
@@ -53,7 +57,8 @@ const ChatD = () => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setFullName(data.fullName);
-          setAvatarUrl(data.avatarUrl);
+          console.log(data);
+          setAvatarUrl(data.avatarUrl || "/images/Avatar.png");
         } else {
           console.log("not esist");
         }
@@ -62,22 +67,46 @@ const ChatD = () => {
 
     fetchUserData();
   }, []);
+
   useEffect(() => {
+    setloading(true);
+    const user = auth.currentUser;
+    if (!user) return;
+
     const q = query(
       collection(db, "Chats", ChatId, "Messages"),
       orderBy("timestamp", "asc")
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       const messagesArray = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setMessages(messagesArray);
+      setloading(false);
+      scrollToBottom();
+
+      // Mark unread messages as read
+      const unreadMessages = snapshot.docs.filter(
+        (doc) => !doc.data().read && doc.data().senderId !== user.uid
+      );
+
+      for (let unreadMessage of unreadMessages) {
+        const messageRef = doc(
+          db,
+          "Chats",
+          ChatId,
+          "Messages",
+          unreadMessage.id
+        );
+        await updateDoc(messageRef, { read: true });
+      }
     });
 
     return () => unsubscribe();
   }, [ChatId]);
+
   // Ensure scroll to bottom after messages array is updated
   useEffect(() => {
     scrollToBottom();
@@ -93,8 +122,10 @@ const ChatD = () => {
       text: newMessage,
       senderId: user.uid,
       timestamp: new Date(),
+      read: false, // Track unread messages
     };
 
+    // Save message in sub-collection
     await addDoc(collection(db, "Chats", ChatId, "Messages"), messageDoc);
 
     // Update last message in chat document
@@ -105,6 +136,7 @@ const ChatD = () => {
     });
 
     setNewMessage(""); // Clear the input field after sending the message
+    scrollToBottom();
   };
 
   const scrollToBottom = () => {
@@ -116,7 +148,9 @@ const ChatD = () => {
       sendMessage();
     }
   };
-
+  if (loading) {
+    return <Preloader />;
+  }
   return (
     <div className="flex h-[100%] flex-col">
       <div className="flex justify-between p-4 items-center shadow-sm py-2">
@@ -125,7 +159,10 @@ const ChatD = () => {
             <IoArrowBack />{" "}
           </Link>
           <div>
-            <img src={avatarUrlR} className=" rounded-full w-8" />
+            <img
+              src={avatarUrlR}
+              className=" h-8 object-cover rounded-full w-8"
+            />
           </div>
           <div className="flex flex-col ">
             <h2 className="flex font-bold capitalize">{fullNameR}</h2>
@@ -136,36 +173,70 @@ const ChatD = () => {
           <IoMenu />
         </div>
       </div>
-      <div className="flex flex-col flex-1 h-full w-full overflow-auto">
+      <div className="flex flex-col flex-1 h-full w-full overflow-scroll">
         <div>
+          <div className="flex flex-col items-end ">
+            {data.length > 0 ? (
+              <>
+                {" "}
+                <div className="grid  mr-2 rounded-lg border gap-1 border-white shadow-md overflow-hidden bg-yellow-600  w-1/2 grid-cols-3 grid-rows-2 ">
+                  <img
+                    src={data[0]}
+                    className="w-full h-full col-span-2 row-span-2 object-cover"
+                  />
+                  <img src={data[1]} className="w-full h-full object-cover" />{" "}
+                  <img src={data[2]} className="w-full h-full object-cover" />
+                </div>
+                <p className="bg-amber-50 mr-2 text-start flex py-2 px-2 rounded-tl-xl rounded-tr-md  rounded-bl-xl max-w-[60%]">
+                  you accepted this claim
+                </p>
+              </>
+            ) : null}
+          </div>
           {messages.map((message) => (
             <div key={message.id} className="message">
               <div>
                 {message.senderId === auth.currentUser.uid ? (
-                  <div className="w-full flex flex-col items-end p-2 justify-end">
-                    <img src={avatarUrl} className="w-6 rounded-full" />
-                    <p className="bg-green-500 w-[70%] text-end">
-                      {message.text}
-                    </p>
-                    <p className="text-gray-400 text-sm">
-                      {message.timestamp?.toDate().toLocaleDateString("en-US", {
-                        year: "numeric",
+                  <div className="cursor-pointer w-full flex flex-col items-end p-2 justify-end">
+                    <div className=" min-w-[60%] items-end flex flex-col">
+                      <p className="bg-yellow-600 mr-2 text-start flex py-2 px-2 rounded-tl-xl rounded-tr-md  rounded-bl-xl max-w-[60%]">
+                        {message.text}
+                      </p>
+                      <img
+                        src={avatarUrl}
+                        className="w-4 rounded-full -mt-2 h-4 object-cover"
+                      />
+                    </div>
+                    <span className="text-gray-400 text-xs inline-block ">
+                      {message.timestamp.toDate().toLocaleString("en-US", {
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
                         month: "short",
                         day: "numeric",
                       })}
-                    </p>
+                    </span>
                   </div>
                 ) : (
-                  <div className="w-full flex flex-col items-start p-2">
-                    <img src={avatarUrlR} className="w-6 rounded-full" />
-                    <p className="w-[70%] bg-red-600">{message.text}</p>
-                    <p className="text-gray-400 w-[70%] text-sm">
-                      {message.timestamp?.toDate().toLocaleDateString("en-US", {
-                        year: "numeric",
+                  <div className=" cursor-pointer w-full flex flex-col items-start p-2 justify-end">
+                    <div className=" min-w-[60%] items-start flex flex-col">
+                      <p className="bg-yellow-600 mr-2 text-start flex py-2 px-2 rounded-rl-xl rounded-tr-md  rounded-br-xl max-w-[60%]">
+                        {message.text}
+                      </p>
+                      <img
+                        src={avatarUrlR}
+                        className="w-4 rounded-full -mt-2 h-4 object-cover"
+                      />
+                    </div>
+                    <span className="text-gray-400 text-xs inline-block ">
+                      {message.timestamp.toDate().toLocaleString("en-US", {
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
                         month: "short",
                         day: "numeric",
                       })}
-                    </p>
+                    </span>
                   </div>
                 )}
               </div>

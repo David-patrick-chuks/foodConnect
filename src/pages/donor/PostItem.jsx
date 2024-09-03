@@ -9,10 +9,12 @@ import {
   Typography,
   Select,
   Textarea,
+  Spinner,
+  Option as MaterialOption,
 } from "@material-tailwind/react";
-import { Options } from "react-naija-states";
-import {  FaPlus, FaRegEdit } from "react-icons/fa";
+import { FaPlus, FaRegEdit } from "react-icons/fa";
 import Preloader from "../../components/Preloader";
+import { nigerianStates } from "../../utils/nigeriaStates";
 
 const PostItem = () => {
   const [itemName, setItemName] = useState("");
@@ -20,6 +22,7 @@ const PostItem = () => {
   const [images, setImages] = useState([null, null, null]);
   const [loading, setLoading] = useState(false);
   const [stateValue, setStateValue] = useState("");
+  const [recipients, setRecipients] = useState(1);
 
   const handleImageUpload = (e, index) => {
     const newImages = [...images];
@@ -27,16 +30,15 @@ const PostItem = () => {
     setImages(newImages);
   };
 
-  const handleStateChange = (event) => {
-    setStateValue(event.target.value);
+  const handleStateChange = (value) => {
+    setStateValue(value);
+    console.log(value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-
-    // Check if user has uploaded exactly 3 images
     if (images.includes(null)) {
       toast.error("Please upload exactly 3 images");
       setLoading(false);
@@ -44,7 +46,6 @@ const PostItem = () => {
     }
 
     try {
-      // Get the current user
       const user = auth.currentUser;
       if (!user) {
         throw new Error("User not found");
@@ -59,37 +60,41 @@ const PostItem = () => {
         })
       );
 
-      // Reference to the user document in Firestore
       const userDocRef = doc(db, "FoodConnectUsers", user.uid);
 
-      // Reference to the 'MyPosts' collection inside the user document
       const myPostsCollectionRef = collection(
         db,
         "FoodConnectUsers",
         user.uid,
         "MyPosts"
       );
-
-      // Create a new post document inside 'MyPosts'
       const postDocRef = doc(myPostsCollectionRef);
       await setDoc(postDocRef, {
-        itemName,
-        description,
-        state: stateValue,
-        imageUrls,
+        itemName, 
+        description, 
+        state: stateValue, 
+        imageUrls, 
+        recipients, 
+        claims: 0, 
+        claimedBy: [], 
         postedAt: new Date().toLocaleDateString("en-US", {
-          year: "numeric",
           month: "short",
-          day: "numeric",
-        }),
+          day: "2-digit",
+          year: "numeric",
+        }), 
+        donorId: user.uid, 
+        donorName: user.displayName || "Unknown Donor", 
+        donorAvatar: user.photoURL || "/default-avatar.png", 
       });
 
       toast.success("Item posted successfully");
-      // Reset all values
+
       setItemName("");
       setDescription("");
       setImages([null, null, null]);
       setLoading(false);
+      setStateValue("");
+      setRecipients(1);
     } catch (error) {
       console.error("Error posting item:", error);
       toast.error("Failed to post item. Please try again.");
@@ -97,19 +102,17 @@ const PostItem = () => {
     }
   };
 
-  // if (loading) {
-  //   return <Preloader />;
-  // }
   return (
     <>
       <ToastContainer />
-      <div className="flex flex-col items-center w-full h-screen md:p-5 ">
-       {loading && <Preloader />}
+      {loading && (
+        <div className="z-50 flex fixed flex-col justify-center bg-black/50  items-center w-[80%] h-screen">
+          <Spinner color="yellow" />
+        </div>
+      )}
+      <div className="flex flex-col items-center w-full h-screen md:pb-0  md:p-5 ">
         <div className="w-full">
-          <div
-            // variant="gradient"
-            className="w-full flex text-white bg-gradient-to-tl p-2 rounded shadow-md from-amber-400 to-amber-600"
-          >
+          <div className="w-full flex text-white bg-gradient-to-tl p-2 rounded shadow-md from-amber-400 to-amber-600">
             <p className="md:text-xl">
               <FaRegEdit />
             </p>
@@ -171,33 +174,50 @@ const PostItem = () => {
                 <label className="font-medium text-sm" htmlFor="state">
                   Select the state where the food is located
                 </label>
-                <select
-                  name="state"
-                  placeholder="Please select a State"
-                  value={stateValue || ""}
+
+                <Select
+                  value={stateValue}
+                  animate={{
+                    mount: { y: 0 },
+                    unmount: { y: 25 },
+                  }}
+                  selected={(element) =>
+                    element &&
+                    React.cloneElement(element, {
+                      disabled: true,
+                      className:
+                        "flex items-center opacity-100 px-0 gap-2 pointer-events-none",
+                    })
+                  }
                   onChange={handleStateChange}
-                  required
-                  className="border border-gray-300 p-2 rounded"
                 >
-                  <Options type="state" />
-                </select>
-                {/* <Select
-              size="lg"
-              value={stateValue || ""}
-              onChange={handleStateChange}
-              required
-              label="Select Country"
-              selected={(element) =>
-                element &&
-                React.cloneElement(element, {
-                  disabled: true,
-                  className:
-                    "flex items-center opacity-100 px-0 gap-2 pointer-events-none",
-                })
-              }
-            >
-              <Options type="state" />
-            </Select> */}
+                  {nigerianStates.map((state) => (
+                    <MaterialOption
+                      key={state.name}
+                      value={state.name}
+                      className="flex items-center gap-2"
+                    >
+                      {state.name}
+                    </MaterialOption>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <Typography variant="h6" className="mb-1 text-black pop ">
+                  Number of Recipients
+                </Typography>
+                <Input
+                  placeholder="Enter number of recipients"
+                  className="!border-[#000000] focus:!border-2 text-dark"
+                  labelProps={{
+                    className: "before:content-none after:content-none",
+                  }}
+                  autoComplete="off"
+                  type="number"
+                  size="lg"
+                  value={recipients}
+                  onChange={(e) => setRecipients(e.target.value)}
+                />
               </div>
               <div className="flex flex-col mt-5 md:mt-0 md:flex-row items-center w-full md:w-[60%]">
                 <div className="md:mb-1 mb-4 text-black font-medium pop w-full ">
@@ -243,9 +263,10 @@ const PostItem = () => {
             </div>
             <Button
               type="submit"
-              className="mt-4 hover:shadow-md text-base font-medium shadow-md  pop capitalize"
+              className="mt-4 bg-black hover:shadow-md text-base font-medium shadow-md  pop capitalize"
               fullWidth
               disabled={loading}
+              loading={loading}
             >
               Post Food Item
             </Button>

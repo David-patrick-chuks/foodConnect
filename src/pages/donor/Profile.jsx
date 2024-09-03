@@ -47,16 +47,21 @@ export default function Profile() {
   }, []);
 
   const handleAvatarChange = async (event) => {
-    const user = auth.currentUser;
-    const file = event.target.files[0];
-    const avatarRef = ref(storage, `avatars/${user.uid}`);
-    await uploadBytes(avatarRef, file);
-    const downloadURL = await getDownloadURL(avatarRef);
-    await updateDoc(doc(db, "FoodConnectUsers", user.uid), {
-      avatarUrl: downloadURL,
-    });
-    setAvatarUrl(downloadURL);
-    // toast.success("Avatar updated successfully");
+   try {
+     const user = auth.currentUser;
+     const file = event.target.files[0];
+     const avatarRef = ref(storage, `avatars/${user.uid}`);
+     await uploadBytes(avatarRef, file);
+     const downloadURL = await getDownloadURL(avatarRef);
+     await updateDoc(doc(db, "FoodConnectUsers", user.uid), {
+       avatarUrl: downloadURL,
+     });
+     setAvatarUrl(downloadURL);
+     console.log("profile successfully updated");
+     toast.success("Avatar updated successfully");
+   } catch (error) {
+    console.log(error.message);
+   }
   };
 
   const handleSaveChanges = async () => {
@@ -225,6 +230,16 @@ export default function Profile() {
           disabled
           className="mb-2"
         /> */}
+        <div className="mb-1 w-full">
+          <label htmlFor="Bio" className=" text-amber-600 font-bold text-xs">
+            Bio
+          </label>
+          <Textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className="mb-1"
+          />
+        </div>
       </div>
     </div>
   );

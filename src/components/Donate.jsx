@@ -52,7 +52,7 @@ export function Donate() {
               variant="circular"
               alt={item.name}
               className=" border-2 border-white"
-              src={item.image}
+              src={item.profile}
               />
             </CardBody>
           </Card>

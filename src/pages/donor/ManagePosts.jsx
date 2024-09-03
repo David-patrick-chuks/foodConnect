@@ -131,7 +131,14 @@ const ManagePosts = () => {
                       {modalData.state} State
                     </p>
                     <p className="text-sm font-medium">
-                      Posted at: {modalData.postedAt}
+                      Posted at:{" "}
+                      {modalData.postedAt.toLocaleString("en-US", {
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </p>
                   </div>
                 </div>
@@ -182,18 +189,23 @@ const ManagePosts = () => {
                 </div>
                 <div className="w-full flex flex-col justify-between">
                   <div>
-                    <Typography
-                      variant="h6"
-                      className="font-bold text-2xl pop capitalize text-black"
-                    >
-                      {post.itemName}
-                    </Typography>
+                    {" "}
+                    <p className="text-black/70 mb-2 text-xl font-bold ">
+                      {post.itemName.length <= 100 ? (
+                        post.itemName
+                      ) : (
+                        <span>
+                          {`${post.itemName.slice(0, 40)}...`}
+                        
+                        </span>
+                      )}
+                    </p>
                     <p className="text-black/70 mb-2 text-xs ">
                       {post.description.length <= 500 ? (
                         post.description
                       ) : (
                         <span>
-                          {`${post.description.slice(0, 500)}...`}{" "}
+                          {`${post.description.slice(0, 500)}...`}
                           <span
                             className="text-black font-medium"
                             onClick={() => handleReadMore(post.id)}
@@ -208,7 +220,14 @@ const ManagePosts = () => {
                         {post.state} State
                       </p>
                       <p className="text-sm font-medium">
-                        Posted at: {post.postedAt}
+                        Posted at:{" "}
+                        {post.postedAt.toLocaleString("en-US", {
+                          hour: "numeric",
+                          minute: "numeric",
+                          hour12: true,
+                          month: "short",
+                          day: "numeric",
+                        })}
                       </p>
                     </div>
                     <p className="text-black text-sm font-medium mt-2">

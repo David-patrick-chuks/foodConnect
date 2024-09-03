@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { auth, db } from "../../utils/firebase";
 import { Link } from "react-router-dom";
 
@@ -12,7 +12,8 @@ const MessageR = () => {
 
     const q = query(
       collection(db, "Chats"),
-      where("receiverId", "==", user.uid)
+      where("receiverId", "==", user.uid),
+      orderBy("lastMessageTime", "desc")
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -45,7 +46,13 @@ const MessageR = () => {
                 <p className="font-bold">Chat with {chat.donorName}</p>
                 <p className="text-gray-500">{chat.customMessage}</p>
                 <p className="text-gray-400 text-sm">
-                  {chat.lastMessageTime?.toDate().toLocaleString()}
+                  {chat.lastMessageTime.toDate().toLocaleString("en-US", {
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
+                        month: "short",
+                        day: "numeric",
+                      })}
                 </p>
               </Link>
             </div>

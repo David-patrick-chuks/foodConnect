@@ -4,6 +4,7 @@ import Works from "../works/Works";
 import { Donate } from "../../components/Donate";
 import { TestimonialsSection } from "../../components/TestimonialsSection";
 import PopupModal from "../../components/PopupModal";
+import MyBackend from "../../components/frontendData/MyBackend";
 
 export const Home = () => {
   const [modalVisibility, setModalVisibility] = useState(false);
@@ -15,8 +16,12 @@ export const Home = () => {
       window.removeEventListener("scroll", handleScroll);
     }
   };
+
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+ if (!modalVisibility) {
+     window.addEventListener("scroll", handleScroll);
+
+ }
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -25,20 +30,22 @@ export const Home = () => {
   const closeModal = () => {
     setModalVisibility(false);
   };
-const Homepage = () => {
-  return(
-    <div>
-    <PopupModal onClose={closeModal} show={modalVisibility} />
-    <CarouselCustomNavigation />
-    <Works />
-    <Donate />
-    <TestimonialsSection />
-  </div>
-  )
-}
+  const Homepage = () => {
+    return (
+      <div>
+        <PopupModal onClose={closeModal} show={modalVisibility} />
+        <CarouselCustomNavigation />
+        {/* <MyBackend /> */}
+        <Works />
+        <Donate />
+        <TestimonialsSection />
+      </div>
+    );
+  };
   return (
-   <div>
-    <Homepage />
-   </div>
+    <div>
+      
+      <Homepage />
+    </div>
   );
 };

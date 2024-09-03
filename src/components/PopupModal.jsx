@@ -1,8 +1,16 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
 export default function PopupModal({ show, onClose }) {
+  useEffect(() => {
+    if (show) {
+          document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
 
   if (!show) {
     return null;

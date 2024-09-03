@@ -8,7 +8,7 @@ import { signOut } from "firebase/auth";
 import Preloader from "../../components/Preloader";
 
 export default function Dashboard() {
-  const [userType, setUserType] = useState("");
+  const [userType, setUserType] = useState("" || "receiver");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [sidebarNav, setSidebarNav] = useState(false);
@@ -62,7 +62,7 @@ export default function Dashboard() {
     });
   };
   return (
-    <div className="flex w-full h-screen">
+    <div className="flex flex-row w-full h-screen">
       <SIdebar
         loading={loading}
         userType={userType}
@@ -70,14 +70,12 @@ export default function Dashboard() {
         handleSignOut={handleSignOut}
         handlecloseNav={handleSidebarNav}
       />
-      <main className="md:w-[80%] flex flex-col px-4 py-2 h-screen ">
-        <div className="  flex ">
-          <Header handleSidebarNav={handleSidebarNav} />
-        </div>
-        <div className=" flex-1 md:overflow-scroll">
+      <div className=" w-full ">
+        <Header handleSidebarNav={handleSidebarNav} />
+        <main className="flex w-full h-[90dvh] overflow-scroll ">
           <Outlet />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

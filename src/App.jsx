@@ -7,42 +7,50 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import { Home } from "./pages/homepage/Home";
+import {
+  FooterContent,
+  About,
+  Works,
+  Home,
+  Contact,
+} from "./pages/homepage/pagesH";
 import { NavBar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
 import { NotFound } from "./components/NotFound";
-import { FooterContent } from "./components/FooterContent";
-import About from "./pages/about/About";
-import Works from "./pages/works/Works";
-import Contact from "./pages/contact/Contact";
-import Signup from "./pages/account/Signup";
-import Login from "./pages/account/Login";
+import { Login, Signup } from "./pages/account/users";
 import Dashboard from "./pages/dashboard/Dashboard";
-import Donor from "./pages/donor/Donor";
-import ManagePosts from "./pages/donor/ManagePosts";
-import MessageD from "./pages/donor/MessageD";
-import NotifyD from "./pages/donor/NotifyD";
-import PostItem from "./pages/donor/PostItem";
-import Profile from "./pages/donor/Profile";
-import Receiver from "./pages/receiver/Receiver";
-import ClaimFood from "./pages/receiver/ClaimFood";
-import MyClaims from "./pages/receiver/MyClaims";
-import ProfileR from "./pages/receiver/ProfileR";
-import NotifyR from "./pages/receiver/NotifyR";
-import MessageR from "./pages/receiver/MessageR";
-import DonorProfile from "./pages/receiver/DonorProfile";
+import {
+  ChatD,
+  PostItem,
+  ManagePosts,
+  ReceiverProfile,
+  MessageD,
+  NotifyD,
+  Profile,
+  Donor,
+  SettingsD
+} from "./pages/donor/pagesD";
+import {
+  ChatR,
+  ClaimFood,
+  DonorProfile,
+  MessageR,
+  MyClaims,
+  NotifyR,
+  ProfileR,
+  Receiver,
+  SettingsR
+} from "./pages/receiver/pagesR";
 import Preloader from "./components/Preloader";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./utils/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import ReceiverProfile from "./pages/donor/ReceiverProfile";
-import ChatD from "./pages/donor/ChatD";
-import ChatR from "./pages/receiver/ChatR";
+import Bot from "./pages/chatBot/ChatBot";
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // Start as true to show preloader initially
-  const [userType, setUserType] = useState("");
+  const [userType, setUserType] = useState("" || "receiver");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,15 +79,17 @@ function App() {
     };
   }, []);
 
-  if (loading) {
-    return <Preloader />;
-  }
+  // if (loading) {
+  //   return <Preloader />;
+  // }
 
   return (
     <>
       {!user ? (
         <>
           <NavBar />
+           <Bot /> 
+          <div>{loading && <Preloader />}</div>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about-us" element={<About />} />
@@ -105,18 +115,17 @@ function App() {
                   element={<ReceiverProfile />}
                 />
                 <Route path="donor-messages" element={<MessageD />} />
-                <Route
-                  path="donor-messages/:ChatId"
-                  element={<ChatD />}
-                />
+                <Route path="donor-messages/:ChatId" element={<ChatD />} />
                 <Route path="donor-notifications" element={<NotifyD />} />
                 <Route path="post-item" element={<PostItem />} />
+                <Route path="settings" element={<SettingsD />} />
               </>
             )}
             {userType === "receiver" && (
               <>
                 <Route path="receiver" element={<Receiver />} />
                 <Route path="claim-food" element={<ClaimFood />} />
+                <Route path="settings" element={<SettingsR />} />
                 <Route path="claim-food/:donorId" element={<DonorProfile />} />
                 <Route path="my-claims" element={<MyClaims />} />
                 <Route path="receiver-profile" element={<ProfileR />} />
@@ -126,7 +135,10 @@ function App() {
               </>
             )}
           </Route>
-          <Route path="*" element={<Navigate to="/dashboard" />} />
+          <Route
+            path="*"
+            element={<Navigate to={`/dashboard/${userType}`} />}
+          />
         </Routes>
       )}
     </>

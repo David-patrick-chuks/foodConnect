@@ -1,7 +1,6 @@
-import React from "react";
+
 import { Steps } from "../../utils/steps";
 import {
-  Button,
   Card,
   CardBody,
   CardFooter,
@@ -32,7 +31,7 @@ const Works = () => {
               <p className="lg:mb-0 text-xs lg:text-sm">{step.description}</p>
             </CardBody>
             <CardFooter className="p-0 ">
-              <p className="  underline-offset-1 duration-500 text-amber-600 hover:text-amber-900 font-medium  underline">
+              <p className=" duration-500 text-amber-600 hover:text-amber-900 font-medium  ">
                 {step.cta.text}
               </p>
             </CardFooter>

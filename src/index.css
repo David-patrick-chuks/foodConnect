@@ -16,14 +16,15 @@ input{
 body{
   font-family: "Poppins", sans-serif;
 }
+
 .nav .active {
   @apply text-amber-600 font-bold bg-white rounded-r-2xl py-2 pl-5
 } 
 .inactive-link{
-  @apply text-[#000000] font-medium w-full hover:inset-0 hover:bg-opacity-20 hover:bg-yellow-500 transition duration-300 rounded-lg px-2 py-2
+  @apply  font-medium w-full hover:inset-0 hover:bg-opacity-20 hover:bg-yellow-500 transition duration-300 rounded-lg px-[6px] py-[6px]
 }
 .active-link{
-  @apply bg-amber-500 font-medium w-full text-white rounded-lg px-2 py-2 shadow-sm
+  @apply bg-amber-500 text-white font-medium w-[100%] rounded-lg px-[6px] py-[6px] shadow-sm
 }
 
 .image-gallery-thumbnail.active,

@@ -1,10 +1,10 @@
 import { Button, IconButton } from "@material-tailwind/react";
-import React, { useState, useEffect } from "react";
-import { RiContactsFill, RiMenu2Fill } from "react-icons/ri";
+import React, { useState } from "react";
+import {  RiMenu2Fill } from "react-icons/ri";
 import { NotifiactionBar } from "./NotifiactionBar";
-import { IoClose, IoHome } from "react-icons/io5";
+import { IoClose, } from "react-icons/io5";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FaInfoCircle, FaQuestionCircle } from "react-icons/fa";
+import { HomeModernIcon, InformationCircleIcon, PhoneArrowDownLeftIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 
 export const NavBar = () => {
   const [mobileNav, setMobileNav] = useState(false);
@@ -18,31 +18,33 @@ export const NavBar = () => {
       id: 1,
       path: "/",
       label: "Home",
-      icon: <IoHome />,
+      icon: HomeModernIcon ,
     },
     {
       id: 2,
       path: "/about-us",
       label: "About Us",
-      icon: <FaInfoCircle />,
+      icon: InformationCircleIcon,
     },
     {
       id: 3,
       path: "/how-it-works",
       label: "How It Works",
-      icon: <FaQuestionCircle />,
+      icon: QuestionMarkCircleIcon,
     },
     {
       id: 4,
       path: "/contact-us",
       label: "Contact Us",
-      icon: <RiContactsFill />,
+      icon: PhoneArrowDownLeftIcon ,
     },
   ];
   const handleRegister = () => {
     navigate("/signup");
+    setMobileNav(false);
   };
   const returnHome = () => {
+    setMobileNav(false);
     navigate("/");
   };
   return (
@@ -53,7 +55,10 @@ export const NavBar = () => {
           mobileNav ? "bg-dark" : "bg-white"
         }  h-[60px]`}
       >
-        <h1 onClick={returnHome} className="lg:text-2xl text-lg font-semibold flex items-center">
+        <h1
+          onClick={returnHome}
+          className="lg:text-2xl text-lg font-semibold flex items-center"
+        >
           <img src="images/FoodBank.png" className="w-8" />
           Food <span className="text-amber-600">Connect</span>
         </h1>
@@ -104,7 +109,10 @@ export const NavBar = () => {
             mobileNav ? " left-0" : "left-[-1000px] duration-500 transition-all"
           }`}
         >
-          <h1 onClick={returnHome} className="lg:text-2xl text-xl font-extrabold pop flex items-center px-2 py-3 mt-1 text-white">
+          <h1
+            onClick={returnHome}
+            className="lg:text-2xl text-xl font-extrabold pop flex items-center px-2 py-3 mt-1 text-white"
+          >
             <img src="images/FoodBank.png" className="w-8" />
             FoodConnect
           </h1>
@@ -115,7 +123,7 @@ export const NavBar = () => {
               to={link.path}
               onClick={() => setMobileNav(false)}
             >
-              {link.icon}
+              <link.icon className=" w-5 h-5" />
               {link.label}
             </NavLink>
           ))}

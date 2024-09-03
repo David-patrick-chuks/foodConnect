@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaBell } from "react-icons/fa";
-import { IoChatbox, IoMenu } from "react-icons/io5";
+import { IoCart, IoChatbox, IoMenu } from "react-icons/io5";
 import { auth, db } from "../../utils/firebase";
 import {
   doc,
@@ -11,106 +11,126 @@ import {
   getDocs,
   updateDoc,
   deleteDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { Typography } from "@material-tailwind/react";
+import { Input, Typography } from "@material-tailwind/react";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function Header({ handleSidebarNav }) {
   const [firstName, setFirstName] = useState("" || "FoodConnect");
   const [loading, setLoading] = useState(true);
-  const [userType, setUserType] = useState("");
+  const [userType, setUserType] = useState("" || "Receiver");
   const [avatarUrl, setAvatarUrl] = useState("/images/Avatar.png");
   const [notifications, setNotifications] = useState([]);
-  const [notificationCount, setNotificationCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(7);
+  const [claimCount, setCLaimCount] = useState(4);
+const [unreadMessagesCount, setUnreadMessagesCount] = useState(6);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const userDoc = doc(db, "FoodConnectUsers", user.uid);
-          const docSnap = await getDoc(userDoc);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            const name = data.fullName.split(" ")[0];
-            setFirstName(name);
-            setUserType(data.userType);
-            setAvatarUrl(data.avatarUrl || "/images/Avatar.png");
-            setLoading(false);
 
-            // Fetch notifications
-            const notificationsQuery = query(
-              collection(db, "Notifications"),
-              where("userId", "==", data.userId), // Filter notifications by userId
-              where("viewed", "==", false) // Get only unviewed notifications
-            );
-            const notificationsSnapshot = await getDocs(notificationsQuery);
-            const fetchedNotifications = notificationsSnapshot.docs.map(
-              (doc) => ({
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      try {
+        const userDoc = doc(db, "FoodConnectUsers", user.uid);
+        const docSnap = await getDoc(userDoc);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const userId = data.userId;
+          const name = data.fullName.split(" ")[0];
+          setFirstName(name);
+          setUserType(data.userType);
+          setAvatarUrl(data.avatarUrl || "/images/Avatar.png");
+
+          // Real-time listener for claims
+          const claimsCollectionRef = collection(
+            db,
+            "FoodConnectUsers",
+            userId,
+            "MyClaims"
+          );
+          const claimQuery = query(
+            claimsCollectionRef,
+            where("viewed", "==", false),
+            where("status", "==", "pending")
+          );
+          const claimsUnsubscribe = onSnapshot(claimQuery, (snapshot) => {
+            const fetchedClaims = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setCLaimCount(fetchedClaims.length || "");
+            console.log(fetchedClaims);
+          });
+
+          // Real-time listener for notifications
+          const notificationsQuery = query(
+            collection(db, "ReceiverNotify"),
+            where("receiverId", "==", userId),
+            where("viewed", "==", false)
+          );
+          const notificationsUnsubscribe = onSnapshot(
+            notificationsQuery,
+            (snapshot) => {
+              const fetchedNotifications = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
-              })
-            );
-            setNotifications(fetchedNotifications);
-            setNotificationCount(fetchedNotifications.length);
-          }
-        } catch (error) {
-          console.log(
-            "Error while getting user data in header:",
-            error.message
+              }));
+              setNotifications(fetchedNotifications);
+              setNotificationCount(fetchedNotifications.length);
+              console.log(fetchedNotifications.length);
+            }
           );
-        } finally {
-          setLoading(false);
+
+          // Real-time listener for unread messages
+          const chatsQuery = query(
+            collection(db, "Chats"),
+            where("receiverId", "==", userId) // Track messages where the user is the receiver
+          );
+          const chatsUnsubscribe = onSnapshot(chatsQuery, (chatSnapshot) => {
+            let totalUnreadMessages = 0; // Track total unread messages
+
+            chatSnapshot.forEach((chatDoc) => {
+              const chatId = chatDoc.id;
+
+              // Listen to unread messages in the chat
+              const messagesQuery = query(
+                collection(db, "Chats", chatId, "Messages"),
+                where("read", "==", false),
+                where("senderId", "!=", userId) // Only count messages sent by others
+              );
+
+              onSnapshot(messagesQuery, (messageSnapshot) => {
+                totalUnreadMessages += messageSnapshot.size; // Add the count of unread messages
+                setUnreadMessagesCount(totalUnreadMessages); // Update the state with the count
+              });
+            });
+          });
+
+          // Cleanup function to unsubscribe from all snapshots
+          return () => {
+            claimsUnsubscribe();
+            notificationsUnsubscribe();
+            chatsUnsubscribe();
+          };
         }
-      } else {
+      } catch (error) {
+        console.log("Error while getting user data in header:", error.message);
+      } finally {
         setLoading(false);
       }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handleViewNotification = async (notificationId) => {
-    try {
-      // Update notification status to viewed in Firestore
-      const notificationDoc = doc(db, "Notifications", notificationId);
-      await updateDoc(notificationDoc, { viewed: true });
-
-      // Update state
-      const updatedNotifications = notifications.map((notif) =>
-        notif.id === notificationId ? { ...notif, viewed: true } : notif
-      );
-      setNotifications(updatedNotifications);
-
-      // Update notification count
-      setNotificationCount(notificationCount - 1);
-    } catch (error) {
-      console.error("Error viewing notification:", error);
+    } else {
+      setLoading(false);
     }
-  };
+  });
 
-  const handleDeleteNotification = async (notificationId) => {
-    try {
-      // Delete the notification from Firestore
-      await deleteDoc(doc(db, "Notifications", notificationId));
+  return () => unsubscribe();
+}, []);
 
-      // Update state
-      const updatedNotifications = notifications.filter(
-        (notif) => notif.id !== notificationId
-      );
-      setNotifications(updatedNotifications);
 
-      // Update notification count
-      if (
-        updatedNotifications.find(
-          (notif) => notif.id === notificationId && !notif.viewed
-        )
-      ) {
-        setNotificationCount(notificationCount - 1);
-      }
-    } catch (error) {
-      console.error("Error deleting notification:", error);
-    }
-  };
 
+  
   const getGreeting = () => {
     const now = new Date();
     const hours = now.getHours();
@@ -125,7 +145,7 @@ export default function Header({ handleSidebarNav }) {
 
   return (
     <>
-    {loading ? (
+      {loading ? (
         <div className="flex p-3 shadow-md w-full top-2 animate-pulse flex-row-reverse justify-between items-center gap-8">
           <div className="flex items-center flex-row-reverse gap-3">
             <div className="grid p-3 place-items-center rounded-full bg-gray-200">
@@ -168,17 +188,39 @@ export default function Header({ handleSidebarNav }) {
           </div>
         </div>
       ) : (
-        <div className="p-3 shadow-md w-full top-2 flex flex-row-reverse justify-between items-center gap-8">
-          <div className="flex items-center flex-row-reverse gap-3">
+        <div className="p-3 shadow-md w-full top-2 flex flex-row dark:bg-amber-600 bg-gray-50 justify-between items-center gap-8">
+          <p className="text-2xl font-semibold text-black">{getGreeting()}</p>
+
+          <div className="w-full md:w-72">
+            <Input
+              label="Search"
+              icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+            />
+          </div>
+          {/* <div className="flex items-center flex-row-reverse gap-3">
             <button
-              className="flex items-center justify-center w-10 h-10 p-2 rounded-full bg-amber-600 text-white"
+              className="flex items-center justify-center w-10 h-10 p-2 rounded-full bg-yellow-600 text-white"
               onClick={handleSidebarNav}
             >
               <IoMenu className="text-2xl" />
             </button>
-            <button className="flex items-center justify-center w-10 h-10 p-2 rounded-full bg-gray-200 text-gray-500">
+            <button className="relative flex items-center justify-center w-10 h-10 p-2 rounded-full bg-gray-200">
               <IoChatbox className="text-2xl" />
+              {unreadMessagesCount > 0 && (
+                <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs font-semibold text-white bg-red-600 rounded-full">
+                  {unreadMessagesCount}
+                </span>
+              )}
             </button>
+
+            <div className="relative flex items-center justify-center w-10 h-10 p-2 rounded-full bg-gray-200">
+              <IoCart className="text-gray-500" />
+              {claimCount > 0 && (
+                <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs font-semibold text-white bg-red-600 rounded-full">
+                  {claimCount}
+                </span>
+              )}
+            </div>
             <div className="relative flex items-center justify-center w-10 h-10 p-2 rounded-full bg-gray-200">
               <FaBell className="text-gray-500" />
               {notificationCount > 0 && (
@@ -187,14 +229,18 @@ export default function Header({ handleSidebarNav }) {
                 </span>
               )}
             </div>
-          </div>
+          </div> */}
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end">
-              <Typography variant="h6" color="blue-gray">
-                {getGreeting()} {firstName}
+              <Typography variant="h6" className="pop" color="black">
+                {firstName}
               </Typography>
-              <Typography variant="small" color="gray">
-                UserType: {userType}
+              <Typography
+                variant="small"
+                className="pop leading-none"
+                color="black"
+              >
+                {userType}
               </Typography>
             </div>
             <img

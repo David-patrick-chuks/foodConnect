@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  updateDoc,
+} from "firebase/firestore";
 import { AiOutlineSearch, AiOutlineDelete } from "react-icons/ai";
 import DonorProfileModal from "./DonorProfileModal";
-import { db } from "../../utils/firebase";
+import { auth, db } from "../../utils/firebase";
 
 const NotifyR = () => {
   const [notifications, setNotifications] = useState([]);
@@ -15,12 +23,19 @@ const NotifyR = () => {
   }, []);
 
   const fetchNotifications = async () => {
-    const querySnapshot = await getDocs(collection(db, "ReceiverNotify"));
+    const user = auth.currentUser;
+    console.log(user.uid);
+    const notificationsQuery = query(
+      collection(db, "ReceiverNotify"),
+      where("receiverId", "==", user.uid) // Get only unviewed notifications
+    );
+    const querySnapshot = await getDocs(notificationsQuery);
     const data = querySnapshot.docs.map((doc) => ({
       ...doc.data(),
       id: doc.id,
     }));
     setNotifications(data);
+    console.log(data.length);
   };
 
   const handleSearchChange = (e) => {
@@ -38,9 +53,17 @@ const NotifyR = () => {
     );
   };
 
-  const openModal = (notification) => {
+  const openModal = async (notification) => {
     setSelectedNotification(notification);
     setIsModalOpen(true);
+    const docRef = doc(
+      db,
+      "ReceiverNotify", // Collection
+      notification.receiverId // Document ID using receiverId
+    );
+    await updateDoc(docRef, {
+      viewed: true,
+    });
   };
 
   const closeModal = () => {
@@ -73,9 +96,16 @@ const NotifyR = () => {
             <div>
               <p className="font-semibold">{notification.message}</p>
               <p className="text-xs text-gray-500">
-                {new Date(notification.timestamp.toDate()).toLocaleString()}
+                {notification.timestamp.toDate().toLocaleString("en-US", {
+                  hour: "numeric",
+                  minute: "numeric",
+                  hour12: true,
+                  month: "short",
+                  day: "numeric",
+                })}
               </p>
             </div>
+            <p>view details</p>
             <AiOutlineDelete
               className="text-red-500"
               onClick={(e) => {

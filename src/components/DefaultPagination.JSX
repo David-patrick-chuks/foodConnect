@@ -1,55 +1,76 @@
 import React from "react";
-import { Button, IconButton } from "@material-tailwind/react";
-import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 
-export function DefaultPagination({ currentPage, totalPosts, postsPerPage, paginate }) {
-  const pageNumbers = [];
-  const totalPages = Math.ceil(totalPosts / postsPerPage);
+const DefaultPagination = ({ currentPage, totalPages, onPageChange }) => {
+  const getPaginationGroup = () => {
+    let startPage, endPage;
+    if (totalPages <= 2) {
+      startPage = 1;
+      endPage = totalPages;
+    } else if (currentPage <= 3) {
+      startPage = 1;
+      endPage = 5;
+    } else if (currentPage + 1 >= totalPages) {
+      startPage = totalPages - 4;
+      endPage = totalPages;
+    } else {
+      startPage = currentPage - 2;
+      endPage = currentPage + 2;
+    }
 
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
-
-  const next = () => {
-    if (currentPage < totalPages) paginate(currentPage + 1);
-  };
-
-  const prev = () => {
-    if (currentPage > 1) paginate(currentPage - 1);
+    return [...Array(endPage - startPage + 1).keys()].map((i) => startPage + i);
   };
 
   return (
-    <div className="flex items-center justify-center mt-6">
-      <IconButton
-        variant="outlined"
-        color="blue"
-        size="sm"
-        onClick={prev}
+    <div className="flex space-x-2">
+      {/* Previous Button */}
+      <button
+        aria-label="Previous Page"
         disabled={currentPage === 1}
+        onClick={() => onPageChange(currentPage - 1)}
+        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
       >
-        <ArrowLeftIcon className="w-4 h-4" />
-      </IconButton>
-      {pageNumbers.map((number) => (
-        <Button
-          key={number}
-          variant={currentPage === number ? "filled" : "outlined"}
-          color="blue"
-          size="sm"
-          className="mx-1"
-          onClick={() => paginate(number)}
+        &lt;
+      </button>
+
+      {/* Page Numbers */}
+      {getPaginationGroup().map((item) => (
+        <button
+          key={item}
+          className={`px-3 py-1 rounded ${
+            currentPage === item ? "bg-red-700 text-white" : "bg-green-500"
+          } hover:bg-green-700 transition`}
+          onClick={() => onPageChange(item)}
         >
-          {number}
-        </Button>
+          {item}
+        </button>
       ))}
-      <IconButton
-        variant="outlined"
-        color="blue"
-        size="sm"
-        onClick={next}
+
+      {/* Ellipsis and Last Page Button */}
+      {currentPage + 2 < totalPages && totalPages > 5 && (
+        <>
+          <button className="px-3 py-1 bg-gray-200 rounded" disabled>
+            ...
+          </button>
+          <button
+            className="px-3 py-1 bg-green-500 rounded hover:bg-green-700"
+            onClick={() => onPageChange(totalPages)}
+          >
+            {totalPages}
+          </button>
+        </>
+      )}
+
+      {/* Next Button */}
+      <button
+        aria-label="Next Page"
         disabled={currentPage === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
       >
-        <ArrowRightIcon className="w-4 h-4" />
-      </IconButton>
+        &gt;
+      </button>
     </div>
   );
-}
+};
+
+export default DefaultPagination;

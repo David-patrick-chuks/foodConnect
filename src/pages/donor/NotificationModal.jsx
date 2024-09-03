@@ -17,6 +17,10 @@ const NotificationModal = ({
         <h2 className="text-xl font-bold mb-4 text-amber-600">
           Receiver Profile
         </h2>
+        <img
+          src={receiverProfile.avatarUrl || "/images/D3.jpeg"}
+          className="w-10 h-10 rounded-full "
+        />
         <p className="mb-2">
           <strong>Full Name:</strong> {receiverProfile.fullName}
         </p>
